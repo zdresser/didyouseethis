@@ -13,10 +13,43 @@ const Post = require('./models/post')
 const Groups = require('./controllers/groups');
 const Posts = require('./controllers/posts')
 const Comments = require('./controllers/comments')
+const Authentication = require('./controllers/authentication')
 
 //auth
 const requireAuth = passport.authenticate('jwt', { session: false });
 const requireSignin = passport.authenticate('local', { session: false });
+
+//fetches a post
+app.param('post', (req, res, next, id) => {
+  Post.findById(id)
+    .exec((err, post) => {
+      if (!post) {
+        res.status(404).send('Post not found');
+        return res.end();
+      } else if (err) {
+        next(err);
+      }
+
+      req.post = post;
+      next();
+    })
+})
+
+//fetches a comment
+app.param('comment', (req, res, next, id) => {
+  Comment.findById(id)
+    .exec((err, comment) => {
+      if (!comment) {
+        res.status(404).send('Comment not found');
+        return res.end();
+      } else if (err) {
+        next(err);
+      }
+
+      req.comment = comment;
+      next();
+    })
+})
 
 //routes
 module.exports = (app) => {
@@ -41,5 +74,7 @@ module.exports = (app) => {
 
 
   app.post('/auth/login', Authentication.login);
-  app.post('/auth/logout', Authentication.logout)
+  app.post('/auth/logout', Authentication.logout),
+  app.post('/auth/signup', Authentication.signup),
+  app.get('/auth/current_user', Authentication.currentUser)
 }

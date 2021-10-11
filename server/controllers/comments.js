@@ -1,6 +1,6 @@
-const { normalizeText } = require('react-native-elements/dist/helpers')
-const Post = require('/.models/post')
-const Comment = require('./models/comment')
+const Post = require('../models/post')
+const Comment = require('../models/comment')
+const { UserInterfaceIdiom } = require('expo-constants')
 
 exports.getComments = (req, res) => {
   Post.findById(req.params.post)
@@ -52,5 +52,15 @@ exports.editComment = (req, res) => {
 }
 
 exports.deleteComment = (req, res) => {
-  //to-do
+  Comment.deleteOne({ _id: req.comment._id })
+    .then(() => {
+      Post.updateOne({ _id: req.comment.post }, { '$pull': { 'comments': req.comment._id } })
+        .then(() => {
+          User.updateOne({ _id: req.comment.user }, { '$pull': { 'comments': req.comment._id } })
+            .exec(err => {
+              if (err) next(err)
+              res.status(200).send(req.comment._id)
+            })
+        })
+    })
 }

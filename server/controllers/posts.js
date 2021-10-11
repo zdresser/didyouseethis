@@ -1,6 +1,6 @@
-const User = require('./models/user')
-const Group = require('./models/group')
-const Post = require('/.models/post')
+const User = require('../models/user')
+const Group = require('../models/group')
+const Post = require('../models/post')
 
 exports.getPosts = (req, res) => {
   Group.findById(req.params.group)
@@ -25,7 +25,7 @@ exports.addPost = (req, res) => {
       if (err) next(err)
 
       const newPost = new Post({
-        author: req.body.authorId,
+        author: req.body.userId,
         text: req.body.text,
         group: group._id,
         comments: []
@@ -53,5 +53,17 @@ exports.editPost = (req, res) => {
 }
 
 exports.deletePost = (req, res) => {
-  //to-do
+  Post.deleteOne({ _id: req.post._id })
+    .then(() => {
+      Group.updateOne({ _id: req.post.group }, { '$pull': { 'posts': req.post._id } })
+        .exec(err => {
+          if (err) next(err)
+
+          const deleteData = {
+            post = req.post._id,
+            group = req.post.group
+          }
+          res.status(200).send(deleteData)
+        })
+    })
 }

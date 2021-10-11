@@ -1,5 +1,5 @@
-const User = require('./models/user')
-const Group = require('./models/group')
+const User = require('../models/user')
+const Group = require('../models/group')
 
 exports.getGroups = (req, res) => {
   Group.find({}) //edit when users are added
@@ -46,7 +46,7 @@ exports.addGroup = (req, res) => {
 exports.editGroup = (req, res) => {
   const update = req.body
   
-  Group.findOneAndUpdate({ _id: req.params.group._id }, update, { new: true })
+  Group.findOneAndUpdate({ _id: req.params.group }, update, { new: true })
     .exec((err, updatedGroup) => {
       if (err) next(err);
       res.status(200).json(updatedGroup)
@@ -54,5 +54,9 @@ exports.editGroup = (req, res) => {
 }
 
 exports.deleteGroup = (req, res) => {
-  //to do
+  Group.deleteOne({ _id: req.params.board })
+    .exec(err => {
+      if (err) next(err)
+      res.status(200).send(req.params.board)
+    })
 }
