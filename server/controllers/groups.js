@@ -21,7 +21,7 @@ exports.getGroup = (req, res, next) => {
     })
 }
 
-exports.postGroup = (req, res) => {
+exports.addGroup = (req, res) => {
   if (!req.body.title) {
     res.status(400).send("No title included in request body")
     return res.end();
@@ -51,4 +51,8 @@ exports.editGroup = (req, res) => {
       if (err) next(err);
       res.status(200).json(updatedGroup)
     })
+}
+
+exports.deleteGroup = (req, res) => {
+  //to do
 }
